@@ -1,0 +1,40 @@
+<Window x:Class="BattWatch.UI.WidgetWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:ui="clr-namespace:BattWatch.UI"
+        Title="电量哨兵悬浮窗" SizeToContent="WidthAndHeight" WindowStyle="None" AllowsTransparency="True"
+        Background="Transparent" Topmost="True" ShowInTaskbar="False" ResizeMode="NoResize"
+        FontFamily="{StaticResource UiFont}" MouseLeftButtonDown="Window_MouseLeftButtonDown">
+    <Window.ContextMenu>
+        <ContextMenu>
+            <MenuItem Header="打开主界面" Click="Open_Click"/>
+            <MenuItem Header="关闭悬浮窗" Click="Close_Click"/>
+        </ContextMenu>
+    </Window.ContextMenu>
+    <Border Background="#E6202020" CornerRadius="10" Padding="12,8" MinWidth="170">
+        <StackPanel>
+            <ItemsControl x:Name="Items">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type ui:DeviceView}">
+                        <Grid Margin="0,3">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="22"/>
+                                <ColumnDefinition Width="*" MaxWidth="150"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding Glyph}" FontFamily="{StaticResource Icons}" FontSize="13" Foreground="#DDD" VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" Text="{Binding Name}" Foreground="#EEE" FontSize="12" TextTrimming="CharacterEllipsis"
+                                       VerticalAlignment="Center" Margin="0,0,12,0" ToolTip="{Binding Sub}"/>
+                            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                <TextBlock Text="&#xE945;" FontFamily="{StaticResource Icons}" FontSize="11" Foreground="#7BD88F"
+                                           VerticalAlignment="Center" Margin="0,0,3,0" Visibility="{Binding ChargingVisibility}"/>
+                                <TextBlock Text="{Binding LevelText}" Foreground="{Binding BarBrush}" FontSize="13" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <TextBlock x:Name="Empty" Text="暂无设备" Foreground="#AAA" FontSize="12" Visibility="Collapsed"/>
+        </StackPanel>
+    </Border>
+</Window>
