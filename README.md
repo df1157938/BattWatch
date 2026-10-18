@@ -25,7 +25,7 @@ dotnet publish src -c Release -r win-x64 --self-contained false -p:PublishSingle
 | 经典蓝牙耳机 | 设备属性 `{104EA319-…} 2`（Windows 从 HFP 拿到的电量） | 只有耳机向 Windows 上报电量时才有 |
 | BLE 鼠标 / 键盘 | 同上属性，否则读 GATT 电池服务 0x180F / 0x2A19 | 只显示**当前已连接**的设备，避免 Windows 缓存的旧值 |
 | MCHOSE 2.4G 接收器 (VID 0x3837) | 厂商 HID 协议，从官方网页驱动中整理 | 见 `src/Providers/MchoseHidProvider.cs`，只发送只读的“读取设备信息”命令 |
-| 前行者 EWEADN X87S 2.4G 接收器 (VID 0x3151 PID 0x504E) | 厂商 HID 特征报告，从官方 E HUB 2.0 网页驱动（RY 方案）中整理 | 见 `src/Providers/X87sHidProvider.cs`，只发送官方驱动每 2 秒轮询的只读状态查询 0xF7；键盘休眠时不显示 |
+| 前行者 EWEADN X87S 等融远（RY）方案 2.4G 接收器 (VID 0x3151) | 厂商 HID 特征报告 0xF7（带 RY 校验和），布局参考 RY 官方网页驱动与 monsgeek-akko-linux 的固件逆向 | 见 `src/Providers/X87sHidProvider.cs`，只发送接收器本地应答的只读状态查询，不经射频转发；键盘关机或刚插接收器还没上报时不显示 |
 | 笔记本电池 | `Windows.Devices.Power.Battery` | |
 
 其他品牌的 2.4G 接收器都是私有协议，需要逐个适配：实现 `IBatteryProvider`，然后在 `BatteryMonitor` 里注册即可。
