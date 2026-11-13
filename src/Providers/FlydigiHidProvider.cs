@@ -16,13 +16,12 @@ namespace BattWatch.Providers;
 /// The dongle drops roughly every other request and reports battery 0 for a few seconds after the
 /// pad powers on, so the query is retried and 0 is treated as "not ready".
 ///
-/// The battery byte has two encodings in Flydigi's own software:
-///   Space Station 4 / SDL: high nibble 0 = discharging, 1 = charging, 2 = full; low nibble 0…5 bars.
-///   Space Station 3:       a raw 98…114 reading mapped linearly to 0…100 %.
+/// The battery byte, as Space Station 4.2 decodes it (HeartBeatCommandFactory): high nibble
+/// 1 = charging (SDL also knows 2 = full), low nibble 0…5 bars. Space Station 3 read older
+/// firmware as a raw 98…114 value mapped linearly to 0…100 %, which is accepted as a fallback.
 ///
-/// In XInput mode the dongle enumerates as 045E:028E and the same channel sits on the interface
-/// owned by the Xbox driver; Space Station reaches it with its own kernel filter driver, so it is
-/// out of reach here.
+/// In XInput mode the dongle enumerates as 045E:028E and this collection does not exist;
+/// see <see cref="FlydigiServiceProvider"/> for that case.
 ///
 /// Sources: SDL src/joystick/hidapi/SDL_hidapi_flydigi.c (V1 protocol), pipe01/flydigictl,
 /// JochemKuipers/flydigi-spacestation-linux docs/protocol.md,
@@ -39,7 +38,7 @@ public sealed class FlydigiHidProvider : IBatteryProvider
     const byte GetInfoCmd = 0xEC;
     const int MinCommandLength = 12; // shorter reports are silently ignored by the firmware
 
-    public string Name => "Flydigi 2.4G";
+    public string Name => "Flydigi DInput";
 
     public Task<IReadOnlyList<DeviceBattery>> ReadAsync(CancellationToken ct)
     {
@@ -119,7 +118,7 @@ public sealed class FlydigiHidProvider : IBatteryProvider
                 bool wired = r[13] == 1;
                 return new DeviceBattery
                 {
-                    Id = $"hid:{c.Vid:X4}:{c.Pid:X4}",
+                    Id = DeviceId(Convert.ToHexString([r[8], r[7], r[6], r[5]])),
                     Name = DeviceName(r[3], c.Product),
                     Kind = DeviceKind.Gamepad,
                     Source = wired ? BatterySource.Usb : BatterySource.Wireless24G,
@@ -149,9 +148,14 @@ public sealed class FlydigiHidProvider : IBatteryProvider
         return null;
     }
 
+    internal const string Vader4ProName = "飞智黑武士4 Pro";
+
+    /// <summary>Same id whichever way the pad is read; mac as "AABBCCDD" or "AA:BB:CC:DD".</summary>
+    internal static string DeviceId(string mac) => "flydigi:" + mac.Replace(":", "").ToUpperInvariant();
+
     static string DeviceName(byte deviceId, string product) => deviceId switch
     {
-        85 => "飞智黑武士4 Pro",
+        85 => Vader4ProName,
         _ => string.IsNullOrEmpty(product) ? $"飞智手柄 #{deviceId}" : product,
     };
 }
