@@ -3,7 +3,7 @@ namespace BattWatch.Core;
 public enum DeviceKind { Unknown, Mouse, Keyboard, Headset, Gamepad, Phone, Laptop }
 
 /// <summary>Where a reading came from; shown as a badge in the UI.</summary>
-public enum BatterySource { Bluetooth, BluetoothLE, Wireless24G, System }
+public enum BatterySource { Bluetooth, BluetoothLE, Wireless24G, Usb, System }
 
 public sealed record DeviceBattery
 {
@@ -23,6 +23,7 @@ public sealed record DeviceBattery
         BatterySource.Bluetooth => "蓝牙",
         BatterySource.BluetoothLE => "BLE",
         BatterySource.Wireless24G => "2.4G",
+        BatterySource.Usb => "有线",
         _ => "本机",
     };
 }

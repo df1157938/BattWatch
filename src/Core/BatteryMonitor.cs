@@ -26,7 +26,7 @@ public sealed class BatteryMonitor : IDisposable
     {
         _settings = settings;
         _history = history;
-        _providers = [new BluetoothProvider(), _mchose, new X87sHidProvider(), _system];
+        _providers = [new BluetoothProvider(), _mchose, new X87sHidProvider(), new FlydigiHidProvider(), new FlydigiServiceProvider(), _system];
     }
 
     public void Start()
